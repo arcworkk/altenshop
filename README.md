@@ -1,4 +1,4 @@
-# Consignes
+# Consignes (Livraison en bas du README)
 
 - Vous êtes développeur front-end : vous devez réaliser les consignes décrites dans le chapitre [Front-end](#Front-end)
 
