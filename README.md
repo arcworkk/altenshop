@@ -116,7 +116,7 @@ J’ai organisé l’architecture du projet en quatre parties :
 
 J’utilise AutoMapper pour le mapping des données avec la logique suivante : Entité ⇆ Model ⇆ DTO. Cela permet une meilleure autonomie dans la manipulation des données.
 
-J'ai mis en place système d’authentification avec gestion des rôles, une pagination pour lister les produits, les dates en UTC pour laisser le front gérer le local.
+J'ai mis en place un système d’authentification avec gestion des rôles, une pagination pour lister les produits, les dates en UTC pour laisser le front gérer le local.
 
 Un seed est inclus dans le projet pour créer les utilisateurs de base, dont un compte admin.  
 ⚠️ La route `/account` permet également de créer un compte administrateur (**non recommandé en production**, mais laissé activé pour les tests).
