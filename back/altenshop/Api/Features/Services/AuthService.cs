@@ -64,6 +64,7 @@ public class AuthService : IAuthService
         {
         new Claim(JwtRegisteredClaimNames.Sub, user.Username),
         new Claim(ClaimTypes.Role, user.Role.ToString()),
+        new Claim("ConnectedUserId", user.Id.ToString()),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
     };
 

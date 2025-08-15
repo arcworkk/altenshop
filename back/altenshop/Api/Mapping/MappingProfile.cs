@@ -9,12 +9,24 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        // DTO -> Model : Price ?? 0m pour éviter null côté service
+        // Product DTO -> Model : Price ?? 0m pour éviter null côté service
         CreateMap<ProductDto, ProductModel>()
             .ForMember(d => d.Price, o => o.MapFrom(s => s.Price ?? 0m));
         CreateMap<ProductModel, ProductDto>();
 
-        // Model <-> Entity
+        // Product Model <-> Entity
         CreateMap<ProductModel, Product>().ReverseMap();
+
+        // Cart
+        CreateMap<Cart, CartModel>().ReverseMap();
+        CreateMap<CartModel, CartDto>().ReverseMap();
+
+        // CartItem
+        CreateMap<CartItem, CartItemModel>()
+            .ForMember(d => d.Product, o => o.MapFrom(s => s.Product));
+        CreateMap<CartItemModel, CartItem>()
+            .ForMember(d => d.Product, o => o.Ignore());
+
+        CreateMap<CartItemModel, CartItemDto>().ReverseMap();
     }
 }

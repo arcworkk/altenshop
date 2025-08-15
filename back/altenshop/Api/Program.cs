@@ -21,6 +21,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 // Auth JWT
 var jwt = builder.Configuration.GetSection("Jwt");
