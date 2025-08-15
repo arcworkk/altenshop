@@ -18,15 +18,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public override Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
+        var now = DateTime.UtcNow;
+
         foreach (var entry in ChangeTracker.Entries<IEntityBase>())
         {
-            if (entry.State == EntityState.Added)
+            switch (entry.State)
             {
-                entry.Entity.CreatedAt = DateTime.UtcNow;
-            }
-            else if (entry.State == EntityState.Modified)
-            {
-                entry.Entity.UpdatedAt = DateTime.UtcNow;
+                case EntityState.Added:
+                    entry.Entity.CreatedAt = now;
+                    entry.Entity.UpdatedAt = now;
+                    break;
+
+                case EntityState.Modified:
+                    // On protège CreatedAt et on ne met à jour que UpdatedAt
+                    entry.Property(e => e.CreatedAt).IsModified = false;
+                    entry.Entity.UpdatedAt = now;
+                    break;
             }
         }
 

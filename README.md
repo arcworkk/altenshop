@@ -99,3 +99,52 @@ Le back-end créé doit pouvoir gérer les produits dans une base de données SQ
 ## Bonus
 
 Vous pouvez ajouter des tests Postman ou Swagger pour valider votre API
+
+## Livraison Back-end
+
+L'API est développée en C# avec ASP.NET Core Web API 8.0.7 LTS, utilisant JWT Bearer Authentication pour l’authentification et SQL Server (en l’occurrence LocalDB) pour la base de données.
+
+J’ai organisé l’architecture du projet en quatre parties :
+
+- Domain : pour les entités métiers et les enums
+
+- Infrastructure : pour la gestion de la base de données et des configurations
+
+- Features : pour la logique métier et les services
+
+- Shared : pour tout ce qui sera exposé, notamment les DTOs et les extensions
+
+J’utilise AutoMapper pour le mapping des données avec la logique suivante : Entité ⇆ Model ⇆ DTO. Cela permet une meilleure autonomie dans la manipulation des données.
+
+J'ai mis en place système d’authentification avec gestion des rôles, une pagination pour lister les produits, les dates en UTC pour laisser le front gérer le local.
+
+Un seed est inclus dans le projet pour créer les utilisateurs de base, dont un compte admin.  
+⚠️ La route `/account` permet également de créer un compte administrateur (**non recommandé en production**, mais laissé activé pour les tests).
+
+### Comptes créés automatiquement démarrage
+
+| Rôle  | Username | Firstname       | Email             | Mot de passe |
+|-------|----------|----------------|-------------------|--------------|
+| Admin | admin    | adminFirstname | admin@admin.com   | admin123     |
+| User  | user     | userFirstname  | user@user.com     | user123      |
+
+### Cela vous permet de :
+- Tester rapidement avec le compte **admin** généré par le seed
+- Créer d'autres comptes **admin** ou **user** si nécessaire lors des tests
+
+J'ai également mis en place Swagger pour tester plus facilement : http://localhost:5020/swagger/index.html
+
+###  Démarrage
+
+Dans ```product-trial-master\back\altenshop\Api```
+
+```bash
+# Restaurer les dépendances
+dotnet restore
+
+# Appliquer les migrations
+dotnet ef database update
+
+# Lancer le projet
+dotnet run
+```

@@ -4,6 +4,7 @@ using Api.Domain.Models;
 using Api.Features.Interfaces;
 using Api.Infrastructure.Data;
 using Api.Shared.Extensions;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Features.Services;
@@ -12,68 +13,66 @@ public class ProductService : IProductService
 {
     private readonly AppDbContext AppDbContext;
 
-    public ProductService(AppDbContext db)
+    private readonly IMapper Mapper;
+
+    public ProductService(AppDbContext db, IMapper mapper)
     {
         AppDbContext = db;
+        Mapper = mapper;
     }
 
-    public async Task<PaginedResult<ProductModel>> GetPaginedProduct(int page, int pageSize, string? search)
+    public async Task<PaginatedResult<ProductModel>> GetPaginatedProduct(int page, int pageSize, string? search)
     {
-        var query = AppDbContext.Products.AsQueryable();
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 20;
+
+        IQueryable<Product> query = AppDbContext.Products.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(product => product.Name.Contains(search) || product.Description.Contains(search));
 
-        var total = await query.CountAsync();
-        var items = await query
+        int total = await query.CountAsync();
+        List<Product> products = await query
             .OrderBy(product => product.Name)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
 
-        var productModels = items.Select(product => product.ToModel()).ToList();
-
-        return new PaginedResult<ProductModel>(productModels, total, page, pageSize);
+        return new PaginatedResult<ProductModel>(products.MapTo<List<ProductModel>>(Mapper), total, page, pageSize);
     }
 
     public async Task<ProductModel?> GetProduct(int id)
     {
         Product? product = await AppDbContext.Products.FindAsync(id);
-        return product?.ToModel();
+
+        return product?.MapTo<ProductModel>(Mapper) ;
     }
 
     public async Task<ProductModel> CreateProduct(ProductModel productModel)
     {
-        Product product = productModel.ToEntity();
+        Product product = productModel.MapTo<Product>(Mapper);
+
         AppDbContext.Products.Add(product);
+
         await AppDbContext.SaveChangesAsync();
-        return product.ToModel();
+
+        return product.MapTo<ProductModel>(Mapper);
     }
 
-    public async Task<ProductModel?> UpdateProduct(int id, ProductModel productModel)
+    public async Task<ProductModel?> UpdateProduct(ProductModel productModel)
     {
-        Product? product = await AppDbContext.Products.FindAsync(id);
+        Product? product = await AppDbContext.Products.FindAsync(productModel.Id);
         if (product == null)
             return null;
 
-        // mise à jour manuelle
-        product.Name = productModel.Name;
-        product.Description = productModel.Description;
-        product.Category = productModel.Category;
-        product.Price = productModel.Price;
-        product.Code = productModel.Code;
-        product.Image = productModel.Image;
-        product.Quantity = productModel.Quantity;
-        product.InternalReference = productModel.InternalReference;
-        product.ShellId = productModel.ShellId;
-        product.InventoryStatus = productModel.InventoryStatus;
-        product.Rating = productModel.Rating;
+        productModel.MapInto(product, Mapper);
 
         await AppDbContext.SaveChangesAsync();
-        return product.ToModel();
+        
+        return product.MapTo<ProductModel>(Mapper);
     }
 
-    public async Task<bool> UpdateProduct(int id)
+    public async Task<bool> DeleteProduct(int id)
     {
         Product? product = await AppDbContext.Products.FindAsync(id);
         if (product == null)

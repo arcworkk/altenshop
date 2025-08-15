@@ -3,6 +3,7 @@ using Api.Domain.Models;
 using Api.Features.Interfaces;
 using Api.Shared.Dtos;
 using Api.Shared.Extensions;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,50 +13,51 @@ namespace Api.Shared.Controllers;
 [Route("api/products")]
 public class ProductsController : ControllerBase
 {
-    private readonly IProductService IProductService;
+    private readonly IProductService ProductService;
+    private readonly IMapper Mapper;
 
-    public ProductsController(IProductService svc)
+    public ProductsController(IProductService productService, IMapper mapper)
     {
-        IProductService = svc;
+        ProductService = productService;
+        Mapper = mapper;
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResult<PaginedResult<ProductDto>>>> GetAllProducts([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? q = null)
+    public async Task<ActionResult<ApiResult<PaginatedResult<ProductDto>>>> GetAllProducts([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? q = null)
     {
-        PaginedResult<ProductModel> pagedProductModels = await IProductService.GetPaginedProduct(page, pageSize, q);
+        PaginatedResult<ProductModel> paginatedProductsModel = await ProductService.GetPaginatedProduct(page, pageSize, q);
 
-        List<ProductDto> productDtos = pagedProductModels.Items
-            .Select((ProductModel productModel) => productModel.ToDto())
+        List<ProductDto> productDto = paginatedProductsModel.Items
+            .Select((ProductModel productModel) => productModel.MapTo<ProductDto>(Mapper))
             .ToList();
 
-        var dtoPage = new PaginedResult<ProductDto>(
-            productDtos,
-            pagedProductModels.Total,
-            pagedProductModels.Page,
-            pagedProductModels.PageSize
+        PaginatedResult<ProductDto> paginatedResult = new PaginatedResult<ProductDto>(
+            productDto,
+            paginatedProductsModel.Total,
+            paginatedProductsModel.Page,
+            paginatedProductsModel.PageSize
         );
 
-        return Ok(ApiResult<PaginedResult<ProductDto>>.Ok(dtoPage));
+        return Ok(ApiResult<PaginatedResult<ProductDto>>.Ok(paginatedResult));
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ApiResult<ProductDto>>> GetProduct(int id)
     {
-        ProductModel? productModel = await IProductService.GetProduct(id);
+        ProductModel? productModel = await ProductService.GetProduct(id);
         if (productModel is null)
             return NotFound(ApiResult<ProductDto>.Fail("Not found"));
 
-        ProductDto productDto = productModel.ToDto();
-        return Ok(ApiResult<ProductDto>.Ok(productDto));
+        return Ok(ApiResult<ProductDto>.Ok(productModel.MapTo<ProductDto>(Mapper)));
     }
 
     [Authorize(Policy = "AdminOnly")]
     [HttpPost]
     public async Task<ActionResult<ApiResult<ProductDto>>> CreateProduct([FromBody] ProductDto productDto)
     {
-        ProductModel productModel = productDto.ToModel();
-        ProductModel createdProductModel = await IProductService.CreateProduct(productModel);
-        ProductDto createdProductDto = createdProductModel.ToDto();
+        ProductModel productModel = productDto.MapTo<ProductModel>(Mapper);
+        ProductModel createdProductModel = await ProductService.CreateProduct(productModel);
+        ProductDto createdProductDto = createdProductModel.MapTo<ProductDto>(Mapper);
 
         return CreatedAtAction(nameof(GetProduct),
             new { id = createdProductDto.Id },
@@ -66,12 +68,13 @@ public class ProductsController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<ActionResult<ApiResult<ProductDto>>> UpdateProduct(int id, [FromBody] ProductDto productDto)
     {
-        ProductModel productModel = productDto.ToModel();
-        ProductModel? updatedProductModel = await IProductService.UpdateProduct(id, productModel);
+        ProductModel productModel = productDto.MapTo<ProductModel>(Mapper);
+        productModel.Id = id;
+        ProductModel? updatedProductModel = await ProductService.UpdateProduct(productModel);
         if (updatedProductModel is null)
             return NotFound(ApiResult<ProductDto>.Fail("Not found"));
 
-        ProductDto updatedProductDto = updatedProductModel.ToDto();
+        ProductDto updatedProductDto = updatedProductModel.MapTo<ProductDto>(Mapper);
         return Ok(ApiResult<ProductDto>.Ok(updatedProductDto));
     }
 
@@ -79,7 +82,7 @@ public class ProductsController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<ActionResult<ApiResult<bool>>> DeleteProduct(int id)
     {
-        bool deleted = await IProductService.UpdateProduct(id);
+        bool deleted = await ProductService.DeleteProduct(id);
         return deleted
             ? Ok(ApiResult<bool>.Ok(true))
             : NotFound(ApiResult<bool>.Fail("Not found"));
