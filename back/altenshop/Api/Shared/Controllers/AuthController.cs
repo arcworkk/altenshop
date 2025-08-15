@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Shared.Controllers;
 
+/// <summary>
+/// Contrôleur gérant l'authentification.
+/// </summary>
 [ApiController]
 [Route("api/auth")]
 public class AuthController : ControllerBase
@@ -16,6 +19,9 @@ public class AuthController : ControllerBase
         IAuthService = auth;
     }
 
+    /// <summary>
+    /// Authentifie un utilisateur avec son email et mot de passe puis génère son token JWT.
+    /// </summary>
     [HttpPost("token")]
     public async Task<ActionResult<ApiResult<LoginRequestDto>>> Login([FromBody] LoginRequestDto loginRequest)
     {
@@ -25,6 +31,9 @@ public class AuthController : ControllerBase
             : Ok(ApiResult<AuthResponseDto>.Ok(res));
     }
 
+    /// <summary>
+    /// Créer un utilisateur puis génère son token JWT.
+    /// </summary>
     [HttpPost("account")]
     public async Task<ActionResult<ApiResult<AuthResponseDto>>> Register([FromBody] RegisterRequestDto registerRequest)
     {

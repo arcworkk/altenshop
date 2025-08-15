@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Shared.Controllers;
 
+/// <summary>
+/// Contrôleur gérant les opérations CRUD des produits.
+/// </summary>
 [ApiController]
 [Route("api/products")]
 public class ProductsController : ControllerBase
@@ -22,6 +25,9 @@ public class ProductsController : ControllerBase
         Mapper = mapper;
     }
 
+    /// <summary>
+    /// Récupère une liste paginée de produits, avec option de recherche.
+    /// </summary>
     [HttpGet]
     public async Task<ActionResult<ApiResult<PaginatedResult<ProductDto>>>> GetAllProducts([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? q = null)
     {
@@ -41,6 +47,9 @@ public class ProductsController : ControllerBase
         return Ok(ApiResult<PaginatedResult<ProductDto>>.Ok(paginatedResult));
     }
 
+    /// <summary>
+    /// Récupère un produit via son identifiant.
+    /// </summary>
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ApiResult<ProductDto>>> GetProduct(int id)
     {
@@ -51,6 +60,9 @@ public class ProductsController : ControllerBase
         return Ok(ApiResult<ProductDto>.Ok(productModel.MapTo<ProductDto>(Mapper)));
     }
 
+    /// <summary>
+    /// Crée un nouveau produit.
+    /// </summary>
     [Authorize(Policy = "AdminOnly")]
     [HttpPost]
     public async Task<ActionResult<ApiResult<ProductDto>>> CreateProduct([FromBody] ProductDto productDto)
@@ -64,6 +76,9 @@ public class ProductsController : ControllerBase
             ApiResult<ProductDto>.Ok(createdProductDto));
     }
 
+    /// <summary>
+    /// Met à jour un produit existant.
+    /// </summary>
     [Authorize(Policy = "AdminOnly")]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<ApiResult<ProductDto>>> UpdateProduct(int id, [FromBody] ProductDto productDto)
@@ -78,6 +93,9 @@ public class ProductsController : ControllerBase
         return Ok(ApiResult<ProductDto>.Ok(updatedProductDto));
     }
 
+    /// <summary>
+    /// Supprime un produit via son identifiant.
+    /// </summary>
     [Authorize(Policy = "AdminOnly")]
     [HttpDelete("{id:int}")]
     public async Task<ActionResult<ApiResult<bool>>> DeleteProduct(int id)

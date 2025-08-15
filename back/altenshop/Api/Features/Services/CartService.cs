@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.Features.Services;
 
+/// <summary>
+/// Service gérant la logique métier et l'accès aux données du panier client.
+/// </summary>
 public class CartService : ICartService
 {
     private readonly AppDbContext AppDbContext;
@@ -20,7 +23,7 @@ public class CartService : ICartService
     }
 
     /// <summary>
-    /// Récupère un panier par son Id (inclut les items). Créer et retourne un nouveau panier si introuvable.
+    /// Récupère le panier de l'utilisateur connecté (inclut les items et les product). Créer et retourne un nouveau panier si introuvable.
     /// </summary>
     public async Task<CartModel> GetCart(int userId)
     {
@@ -40,7 +43,7 @@ public class CartService : ICartService
     }
 
     /// <summary>
-    /// Ajoute (ou incrémente) un produit dans le panier de l'utilisateur.
+    /// Ajoute (ou incrémente) un produit dans le panier de l'utilisateur connecté.
     /// Crée le panier s'il n'existe pas.
     /// </summary>
     public async Task<CartModel> AddCartItem(int userId, int productId, int quantity)
@@ -115,7 +118,7 @@ public class CartService : ICartService
     }
 
     /// <summary>
-    /// Supprime un produit du panier. Retourne true si supprimé.
+    /// Supprime un produit du panier de l'utilisateur connecté. Retourne true si supprimé.
     /// </summary>
     public async Task<bool> DeleteCartItem(int userId, int productId)
     {
@@ -132,7 +135,7 @@ public class CartService : ICartService
     }
 
     /// <summary>
-    /// Supprime un panier et tous ses items par Id. Retourne true si supprimé.
+    /// Supprime le panier de l'utilisateur connecté et tous ses produit. Retourne true si supprimé.
     /// </summary>
     public async Task<bool> DeleteCart(int userId)
     {

@@ -9,6 +9,9 @@ using System.Security.Claims;
 
 namespace Api.Shared.Controllers;
 
+/// <summary>
+/// Contrôleur gérant les opérations CRUD du panier client.
+/// </summary>
 [ApiController]
 [Route("api/cart")]
 public class CartController : ControllerBase
@@ -24,6 +27,9 @@ public class CartController : ControllerBase
 
     private int GetConnectedUserId() => int.Parse(User.FindFirstValue("ConnectedUserId")!);
 
+    /// <summary>
+    /// Récupère le panier de l'utilisateur connecté (inclut les items et les product). Créer et retourne un nouveau panier si introuvable.
+    /// </summary>
     [HttpGet]
     public async Task<ActionResult<ApiResult<CartDto>>> GetCart()
     {
@@ -32,6 +38,10 @@ public class CartController : ControllerBase
         return Ok(ApiResult<CartDto>.Ok(cartModel.MapTo<CartDto>(Mapper)));
     }
 
+    /// <summary>
+    /// Ajoute (ou incrémente) un produit dans le panier de l'utilisateur connecté.
+    /// Crée le panier s'il n'existe pas.
+    /// </summary>
     [HttpPost]
     public async Task<ActionResult<ApiResult<CartDto>>> AddCartItem([FromBody] CartItemAddDto cartItemAddDto)
     {
@@ -40,6 +50,10 @@ public class CartController : ControllerBase
         return Ok(ApiResult<CartDto>.Ok(createdCartModel.MapTo<CartDto>(Mapper)));
     }
 
+    /// <summary>
+    /// Met à jour la quantité d'un produit dans le panier de l'utilisateur connecté.
+    /// Retourne null si le panier ou l'item n'existent pas.
+    /// </summary>
     [HttpPut("{productId:int}")]
     public async Task<ActionResult<ApiResult<CartDto>>> UpdateCartItem(int productId, [FromBody] CartItemUpdateDto cartItemUpdateDto)
     {
@@ -50,6 +64,9 @@ public class CartController : ControllerBase
         return Ok(ApiResult<CartDto>.Ok(updatedCartModel.MapTo<CartDto>(Mapper)));
     }
 
+    /// <summary>
+    /// Supprime un produit du panier de l'utilisateur connecté.
+    /// </summary>
     [HttpDelete("{productId:int}")]
     public async Task<ActionResult<ApiResult<bool>>> DeleteCartItem(int productId)
     {
@@ -59,6 +76,9 @@ public class CartController : ControllerBase
             : NotFound(ApiResult<bool>.Fail("Not found"));
     }
 
+    /// <summary>
+    /// Supprime le panier de l'utilisateur connecté et tous ses produit.
+    /// </summary>
     [HttpDelete]
     public async Task<ActionResult<ApiResult<bool>>> DeleteCart()
     {

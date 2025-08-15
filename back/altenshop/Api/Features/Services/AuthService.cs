@@ -11,6 +11,9 @@ using System.Text;
 
 namespace Api.Features.Services;
 
+/// <summary>
+/// Service d'authentification gérant la connexion, l'enregistrement et la génération de tokens JWT.
+/// </summary>
 public class AuthService : IAuthService
 {
     private readonly AppDbContext AppDbContext;
@@ -22,6 +25,9 @@ public class AuthService : IAuthService
         IConfiguration = config;
     }
 
+    /// <summary>
+    /// Authentifie un utilisateur avec son email et mot de passe puis génère son token JWT.
+    /// </summary>
     public async Task<AuthResponseDto?> LoginAsync(LoginRequestDto loginRequest)
     {
         User? user = await AppDbContext.Users.FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
@@ -32,6 +38,9 @@ public class AuthService : IAuthService
         return new AuthResponseDto(user.Email, user.Role.ToString(), token);
     }
 
+    /// <summary>
+    /// Créer un utilisateur puis génère son token JWT.
+    /// </summary>
     public async Task<AuthResponseDto?> RegisterAsync(RegisterRequestDto registerRequest)
     {
         bool exists = await AppDbContext.Users.AnyAsync(u => u.Email == registerRequest.Email || u.Username == registerRequest.Username);
@@ -54,6 +63,9 @@ public class AuthService : IAuthService
         return new AuthResponseDto(user.Username, user.Role.ToString(), token);
     }
 
+    /// <summary>
+    /// Génère un token JWT pour un utilisateur donné.
+    /// </summary>
     private string GenerateJwtToken(User user)
     {
         var jwtSettings = IConfiguration.GetSection("Jwt");

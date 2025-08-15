@@ -9,6 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.Features.Services;
 
+/// <summary>
+/// Service gérant la logique métier et l'accès aux données des produits.
+/// </summary>
 public class ProductService : IProductService
 {
     private readonly AppDbContext AppDbContext;
@@ -21,6 +24,9 @@ public class ProductService : IProductService
         Mapper = mapper;
     }
 
+    /// <summary>
+    /// Récupère une liste paginée de produits, avec option de recherche.
+    /// </summary>
     public async Task<PaginatedResult<ProductModel>> GetPaginatedProduct(int page, int pageSize, string? search)
     {
         if (page < 1) page = 1;
@@ -41,6 +47,9 @@ public class ProductService : IProductService
         return new PaginatedResult<ProductModel>(products.MapTo<List<ProductModel>>(Mapper), total, page, pageSize);
     }
 
+    /// <summary>
+    /// Récupère un produit via son identifiant.
+    /// </summary>
     public async Task<ProductModel?> GetProduct(int id)
     {
         Product? product = await AppDbContext.Products.FindAsync(id);
@@ -48,6 +57,9 @@ public class ProductService : IProductService
         return product?.MapTo<ProductModel>(Mapper) ;
     }
 
+    /// <summary>
+    /// Crée un nouveau produit.
+    /// </summary>
     public async Task<ProductModel> CreateProduct(ProductModel productModel)
     {
         Product product = productModel.MapTo<Product>(Mapper);
@@ -59,6 +71,9 @@ public class ProductService : IProductService
         return product.MapTo<ProductModel>(Mapper);
     }
 
+    /// <summary>
+    /// Met à jour un produit existant.
+    /// </summary>
     public async Task<ProductModel?> UpdateProduct(ProductModel productModel)
     {
         Product? product = await AppDbContext.Products.FindAsync(productModel.Id);
@@ -72,6 +87,9 @@ public class ProductService : IProductService
         return product.MapTo<ProductModel>(Mapper);
     }
 
+    /// <summary>
+    /// Supprime un produit via son identifiant.
+    /// </summary>
     public async Task<bool> DeleteProduct(int id)
     {
         Product? product = await AppDbContext.Products.FindAsync(id);
