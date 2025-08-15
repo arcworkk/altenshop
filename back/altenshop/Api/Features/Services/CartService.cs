@@ -20,16 +20,23 @@ public class CartService : ICartService
     }
 
     /// <summary>
-    /// Récupère un panier par son Id (inclut les items). Retourne null si introuvable.
+    /// Récupère un panier par son Id (inclut les items). Créer et retourne un nouveau panier si introuvable.
     /// </summary>
-    public async Task<CartModel?> GetCart(int userId)
+    public async Task<CartModel> GetCart(int userId)
     {
         Cart? cart = await AppDbContext.Carts
             .Include(c => c.Items)
                 .ThenInclude(i => i.Product)
             .FirstOrDefaultAsync(c => c.UserId == userId);
+        
+        if (cart is null)
+        {
+            cart = new Cart { UserId = userId };
+            AppDbContext.Carts.Add(cart);
+            await AppDbContext.SaveChangesAsync();
+        }
 
-        return cart?.MapTo<CartModel>(Mapper);
+        return cart.MapTo<CartModel>(Mapper);
     }
 
     /// <summary>

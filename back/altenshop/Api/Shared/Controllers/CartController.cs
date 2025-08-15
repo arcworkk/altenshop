@@ -27,9 +27,7 @@ public class CartController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<ApiResult<CartDto>>> GetCart()
     {
-        CartModel? cartModel = await CartService.GetCart(GetConnectedUserId());
-        if (cartModel is null)
-            return NotFound(ApiResult<CartDto>.Fail("Not found"));
+        CartModel cartModel = await CartService.GetCart(GetConnectedUserId());
 
         return Ok(ApiResult<CartDto>.Ok(cartModel.MapTo<CartDto>(Mapper)));
     }
