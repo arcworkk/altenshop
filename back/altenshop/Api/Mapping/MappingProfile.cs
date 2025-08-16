@@ -26,7 +26,17 @@ public class MappingProfile : Profile
             .ForMember(d => d.Product, o => o.MapFrom(s => s.Product));
         CreateMap<CartItemModel, CartItem>()
             .ForMember(d => d.Product, o => o.Ignore());
-
         CreateMap<CartItemModel, CartItemDto>().ReverseMap();
+
+        // Wishlist
+        CreateMap<Wishlist, WishlistModel>().ReverseMap();
+        CreateMap<WishlistModel, WishlistDto>().ReverseMap();
+
+        // WishlistItem
+        CreateMap<WishlistItem, WishlistItemModel>()
+            .ForMember(d => d.Product, o => o.MapFrom(s => s.Product));
+        CreateMap<WishlistItemModel, WishlistItem>()
+            .ForMember(d => d.Product, o => o.Ignore());
+        CreateMap<WishlistItemModel, WishlistItemDto>().ReverseMap();
     }
 }

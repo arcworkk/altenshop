@@ -113,7 +113,6 @@ public class CartService : ICartService
 
         await AppDbContext.SaveChangesAsync();
 
-        // Retourne l'état à jour
         return cart.MapTo<CartModel>(Mapper);
     }
 

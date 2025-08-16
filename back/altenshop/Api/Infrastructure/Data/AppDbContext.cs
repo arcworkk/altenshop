@@ -7,6 +7,8 @@ namespace Api.Infrastructure.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    public DbSet<WishlistItem> WishlistItems => Set<WishlistItem>();
+    public DbSet<Wishlist> Wishlists => Set<Wishlist>();
     public DbSet<CartItem> CartItems => Set<CartItem>();
     public DbSet<Cart> Carts => Set<Cart>();
     public DbSet<Product> Products => Set<Product>();
