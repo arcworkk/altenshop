@@ -1,17 +1,7 @@
-<p-toolbar [style]="{ height: '100px' }">
-    <div class="p-toolbar-group-start">
-        <img src="assets/icons/icon-72x72.png" alt="logo" />
-    </div>
-    <div class="p-toolbar-group-center">
-        {{ title }}
-    </div>
-    <div class="p-toolbar-group-end">
-        <i class="pi pi-shopping-cart" style="font-size: 2rem"></i>
-    </div>
-</p-toolbar>
+<app-menubar></app-menubar>
 <p-splitter 
     [panelSizes]="[20, 80]"
-    [minSizes]="[20, 0]"
+    [minSizes]="[0, 0]"
     [style]="{ height: 'calc(100vh - 100px)' }">
     <ng-template pTemplate>
         <div class="w-full">
@@ -19,7 +9,7 @@
         </div>
     </ng-template>
     <ng-template pTemplate>
-        <div class="w-full app-content">
+        <div class="w-full app-content" tabindex="-1">
             <router-outlet></router-outlet>
         </div>
     </ng-template>

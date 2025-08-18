@@ -24,12 +24,24 @@ import { Router } from "@angular/router";
         {
             label: 'Accueil',
             icon: 'pi pi-home',
-            routerLink: ['/home']
+            routerLink: ['/home'],
+            command: () => {
+              const el = document.activeElement as HTMLElement | null;
+              if (this.router.isActive('/home', { paths: 'exact', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored'})) {
+                el?.blur();
+              }
+            }
         },
         {
             label: 'Produits',
             icon: 'pi pi-barcode',
-            routerLink: ['/products/list']
+            routerLink: ['/products/list'],
+            command: () => {
+              const el = document.activeElement as HTMLElement | null;
+              if (this.router.isActive('/products/list', { paths: 'exact', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored'})) {
+                el?.blur();
+              }
+            }
         }
     ]
 
