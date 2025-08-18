@@ -29,6 +29,9 @@
             ],
             "styles": [
               "src/styles.scss",
+              "node_modules/primeicons/primeicons.css",
+              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+              "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeflex/primeflex.css",
               {
                 "input": "src/styles/dark.css",
@@ -67,7 +70,12 @@
               ]
             },
             "production": {
-              "fileReplacements": [],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,

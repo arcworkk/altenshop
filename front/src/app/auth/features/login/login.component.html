@@ -1,0 +1,42 @@
+<div class="p-4 flex justify-content-center">
+  <form (ngSubmit)="onSubmit()" [formGroup]="form" class="max-w-md">
+    <p-card header="Connexion">
+
+      <div class="mb-3">
+        <label for="email" class="block mb-2">Email</label>
+        <input pInputText id="email" type="email" formControlName="email" class="w-full" />
+        <small *ngIf="form.controls.email.invalid && form.controls.email.touched" class="p-error">
+          Email invalide.
+        </small>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="block mb-2">Mot de passe</label>
+        <p-password
+          formControlName="password"
+          [toggleMask]="true"
+          class="w-full"
+          inputStyleClass="w-full"
+        ></p-password>
+        <small *ngIf="form.controls.password.invalid && form.controls.password.touched" class="p-error">
+          Mot de passe requis.
+        </small>
+      </div>
+
+      <p-message *ngIf="error" severity="danger" [text]="error"></p-message>
+
+      <ng-template pTemplate="footer">
+        <button pButton type="submit" [disabled]="form.invalid" class="w-full">
+          <i class="pi pi-sign-in pr-2" pButtonIcon></i>
+          <span pButtonLabel>Se connecter</span>
+        </button>
+        <div class="mt-3 text-center">
+          <small>Pas encore de compte ?
+            <a [routerLink]="['/auth/register']" class="text-primary">Créer un compte</a>
+          </small>
+        </div>
+      </ng-template>
+
+    </p-card>
+  </form>
+</div>
