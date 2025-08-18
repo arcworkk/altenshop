@@ -3,13 +3,17 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../data-access/auth.service';
 import { CommonModule } from '@angular/common';
 import { RegisterRequest } from 'app/auth/data-access/registerRequest.model';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { CardModule } from 'primeng/card';
+import { MessageModule } from 'primeng/message';
+import { PasswordModule } from 'primeng/password';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, MessageModule, PasswordModule, ButtonModule, RouterLink],
 })
 export class RegisterComponent {
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {}
@@ -43,7 +47,7 @@ export class RegisterComponent {
           this.router.navigateByUrl('/home');
         },
         error: err => {
-          this.error = 'Identifiants invalides.';
+          this.error = `Identifiants invalides. Erreur : ${err.error.error}`;
           console.error('Erreur login', err)
         }
       });

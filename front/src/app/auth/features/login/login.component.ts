@@ -7,15 +7,13 @@ import { Router, RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { PasswordModule } from 'primeng/password';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CardModule, MessageModule, PasswordModule, InputGroupModule, InputGroupAddonModule, ButtonModule, RouterLink ],
+  imports: [CommonModule, ReactiveFormsModule, CardModule, MessageModule, PasswordModule, ButtonModule, RouterLink ],
 })
 export class LoginComponent implements OnInit {
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {}
@@ -50,7 +48,7 @@ export class LoginComponent implements OnInit {
         this.router.navigateByUrl('/home');
       },
       error: err => {
-        this.error = 'Identifiants invalides.';
+        this.error = `Identifiants invalides. Erreur : ${err.error.error}`;
         console.error('Erreur login', err)
       }
     });
