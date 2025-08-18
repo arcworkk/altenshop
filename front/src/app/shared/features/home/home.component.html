@@ -1,26 +1,6 @@
 <p-card class="block m-2">
   <ng-template pTemplate="title"> Bienvenue </ng-template>
-  <div class="grid">
-    @if (isLoggedIn) {
-      <div class="col-4 md:col-4">
-        <p-card header="Utilisateur connecté">
-          <div>
-            <div><strong>Email :</strong> {{ email }}</div>
-            <div><strong>Rôle :</strong> {{ role }}</div>
-          </div>
-          <ng-template pTemplate="footer">
-            <p-button label="Se déconnecter" icon="pi pi-sign-out" (click)="logout()" class="w-full" styleClass="w-full" />
-          </ng-template>
-        </p-card>
-      </div>
-    }
-    @else {
-      <div class="col-4 md:col-4">
-        <p-button label="Se connecter" icon="pi pi-sign-out" (click)="goToLogin()" class="w-full" styleClass="w-full" />
-      </div>
-    }
     <div class="col-12 md:col-6">
       <p class="m-0">Bienvenue sur {{ appTitle }} !</p>
     </div>
-  </div>
 </p-card>

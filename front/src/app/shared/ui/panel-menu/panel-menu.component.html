@@ -1,0 +1,17 @@
+<p-menu [model]="items" styleClass="w-full">
+    <ng-template pTemplate="end">
+        @if (isLoggedIn) {
+            <div class="flex align-items-center justify-content-between p-2 w-full">
+                <div class="flex align-items-center gap-2 p-2">
+                    <p-avatar icon="pi pi-user" size="large" shape="circle"></p-avatar>
+
+                    <div class="flex flex-column line-height-1">
+                        <span class="font-bold">{{email}}</span>
+                        <span class="text-sm text-500">{{role}}</span>
+                    </div>
+                </div>
+                <p-button icon="pi pi-sign-out" (click)="logout()" size="small" [rounded]="true" />
+            </div>
+        }
+    </ng-template>
+</p-menu>

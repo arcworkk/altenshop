@@ -1,18 +1,24 @@
 import {
     Component,
   } from "@angular/core";
-import { MenuItem } from "primeng/api";
   import { PanelMenuModule } from 'primeng/panelmenu';
+  import { MenuItem } from 'primeng/api';
+  import { Menu, MenuModule } from 'primeng/menu';
+  import { ToastModule } from 'primeng/toast';
+  import { AvatarModule } from 'primeng/avatar';
+  import { AvatarGroupModule } from 'primeng/avatargroup';
+import { ButtonModule } from "primeng/button";
+import { AuthService } from "app/auth/data-access/auth.service";
+import { Router } from "@angular/router";
   
   @Component({
     selector: "app-panel-menu",
     standalone: true,
-    imports: [PanelMenuModule],
-    template: `
-        <p-panelMenu [model]="items" styleClass="w-full" />
-    `
+    imports: [MenuModule, ToastModule, AvatarModule, AvatarGroupModule, ButtonModule],
+    templateUrl: "./panel-menu.component.html",
   })
   export class PanelMenuComponent {
+    constructor( private authService: AuthService, private router: Router ) {}
 
     public readonly items: MenuItem[] = [
         {
@@ -26,5 +32,26 @@ import { MenuItem } from "primeng/api";
             routerLink: ['/products/list']
         }
     ]
+
+    get isLoggedIn() {
+      return this.authService.isLoggedIn();
+    }
+
+    get email() { 
+      return this.authService.getEmail();
+    }
+
+    logout() {
+      this.authService.logout();
+      this.goToLogin();
+    }
+
+    goToLogin() { 
+      return this.router.navigateByUrl('/auth/login');
+    }
+
+    get role() {
+      return this.authService.getRole();
+    }
   }
   
