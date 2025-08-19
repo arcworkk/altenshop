@@ -18,36 +18,27 @@ public static class Seed
 
         if (!await db.Products.AnyAsync())
         {
-            db.Products.AddRange(
-                new Product
+            var random = new Random();
+            var categories = new[] { "Accessories", "Fitness", "Clothing", "Electronics" };
+            var inventoryStatuses = new[] { "INSTOCK", "LOWSTOCK", "OUTOFSTOCK" };
+
+            for (int i = 1; i <= 50; i++)
+            {
+                db.Products.Add(new Product
                 {
-                    Code = "P-001",
-                    Name = "Produit A",
-                    Description = "Desc A",
-                    Image = "",
-                    Category = "Cat 1",
-                    Price = 10,
-                    Quantity = 5,
-                    InternalReference = "INT-1",
-                    ShellId = 1,
-                    InventoryStatus = "INSTOCK",
-                    Rating = 4
-                },
-                new Product
-                {
-                    Code = "P-002",
-                    Name = "Produit B",
-                    Description = "Desc B",
-                    Image = "",
-                    Category = "Cat 2",
-                    Price = 20,
-                    Quantity = 2,
-                    InternalReference = "INT-2",
-                    ShellId = 2,
-                    InventoryStatus = "LOWSTOCK",
-                    Rating = 5
-                }
-            );
+                    Code = $"P-{i:D3}",
+                    Name = $"Produit {i}",
+                    Description = $"Description du produit {i}",
+                    Image = $"image{i}.jpg",
+                    Category = categories[(i - 1) % categories.Length],
+                    Price = (decimal)(random.Next(10, 200) + random.NextDouble()),
+                    Quantity = (i % 7 == 0) ? 0 : random.Next(1, 30),
+                    InternalReference = $"INT-{i}",
+                    ShellId = i,
+                    InventoryStatus = inventoryStatuses[random.Next(inventoryStatuses.Length)],
+                    Rating = random.Next(1, 6)
+                });
+            }
         }
 
         await db.SaveChangesAsync();

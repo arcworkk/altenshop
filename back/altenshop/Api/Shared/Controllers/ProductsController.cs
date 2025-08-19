@@ -29,9 +29,14 @@ public class ProductsController : ControllerBase
     /// Récupère une liste paginée de produits, avec option de recherche.
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<ApiResult<PaginatedResult<ProductDto>>>> GetAllProducts([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? q = null)
+    public async Task<ActionResult<ApiResult<PaginatedResult<ProductDto>>>> GetAllProducts(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            [FromQuery]string? q = null,
+            [FromQuery]string? filter = null,
+            [FromQuery]string? sort = null)
     {
-        PaginatedResult<ProductModel> paginatedProductsModel = await ProductService.GetPaginatedProduct(page, pageSize, q);
+        PaginatedResult<ProductModel> paginatedProductsModel = await ProductService.GetPaginatedProduct(page, pageSize, q, filter, sort);
 
         List<ProductDto> productDto = paginatedProductsModel.Items
             .Select((ProductModel productModel) => productModel.MapTo<ProductDto>(Mapper))

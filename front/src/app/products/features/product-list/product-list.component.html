@@ -1,24 +1,155 @@
 <h1 class="text-center">Liste des produits</h1>
+<p-toast />
+<p-confirmDialog />
+@if(isAdmin()) {
+    <p-button label="Créer produit" (onClick)="onCreate()" class="block text-center"/>
+}
 
-<p-button label="Créer produit" (onClick)="onCreate()" class="block text-center"/>
+<div class="card">
+    <p-dataView class="paginator-center"
+    #dv
+    [value]="products()"
+    [paginator]="true"
+    [rows]="rows"
+    [lazy]="true"
+    [totalRecords]="totalRecords()"
+    (onPage)="onPage($event)">
 
-<p-dataView #dv [value]="products()">
-    <ng-template pTemplate="list" let-products>
-        @for (product of products; track product) {
-            <p-card class="block mb-2">
-                <span class="font-medium text-secondary text-sm">{{ product.category }}</span>
-                <div class="text-lg font-medium text-900 mt-2">{{ product.name }}</div>
+    <!-- Header: tri par prix/nom/catégorie -->
+    <ng-template pTemplate="header">
+        <div class="w-full">
+            <div class="grid flex justify-content-center gap-2">
 
-                <ng-template pTemplate="footer">
-                    <div class="flex gap-3 mt-1">
-                        <p-button label="Modifier" severity="secondary" (onClick)="onUpdate(product)"/>
-                        <p-button label="Supprimer" severity="danger" (onClick)="onDelete(product)" />
-                    </div>
-                </ng-template>
-            </p-card>
-        }
+                <div class="col-12 md:col-4"
+                    [style]="{ width: '200px' }">
+                    <input pInputText type="text" class="w-full"
+                            placeholder="Rechercher..."
+                            [(ngModel)]="searchTerm"
+                            (input)="onSearch(searchTerm)" />
+                </div>
+
+                <div class="col-12 md:col-4"
+                    [style]="{ width: '200px' }">
+                    <p-dropdown class="w-full"
+                                [options]="categoryOptions"
+                                placeholder="Catégorie"
+                                [(ngModel)]="selectedCategory"
+                                (ngModelChange)="applyFilters()">
+                    </p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-4"
+                    [style]="{ width: '200px' }">
+                <p-multiSelect class="w-full"
+                                [options]="statusOptions"
+                                placeholder="Statut stock"
+                                [(ngModel)]="selectedStatuses"
+                                (ngModelChange)="applyFilters()">
+                </p-multiSelect>
+                </div>
+
+                <div class="col-12 md:col-4"
+                    [style]="{ width: '200px' }">
+                    <input type="text" pInputText class="w-full mb-2"
+                            [(ngModel)]="minPrice" placeholder="Prix min" />
+                    <p-slider class="w-full"
+                                [(ngModel)]="minPrice"
+                                (ngModelChange)="applyFilters()" [max]="1000">
+                    </p-slider>
+                </div>
+
+                <div class="col-12 md:col-4"
+                    [style]="{ width: '200px' }">
+                    <input type="text" pInputText class="w-full mb-2"
+                            [(ngModel)]="maxPrice" placeholder="Prix max" />
+                    <p-slider class="w-full"
+                                [(ngModel)]="maxPrice"
+                                (ngModelChange)="applyFilters()" [max]="1000">
+                    </p-slider>
+                </div>
+
+                <div class="col-12 md:col-4"
+                    [style]="{ width: '200px' }">
+                    <p-dropdown class="w-full"
+                                [options]="sortOptions"
+                                [(ngModel)]="sortKey"
+                                placeholder="Trier par"
+                                (onChange)="onSortChange()">
+                    </p-dropdown>
+                </div>
+
+                <div class="col-12 md:col-4"
+                    [style]="{ width: '200px' }">
+                    <p-button label="Effacer filtres"
+                                severity="secondary"
+                                (onClick)="onResetFilters()"
+                                class="w-full"></p-button>
+                </div>
+            </div>
+        </div>
     </ng-template>
-</p-dataView>
+
+    <ng-template pTemplate="list" let-products>
+        <div class="grid grid-nogutter">
+            @for (product of products; track product.id) {
+                <div class="col-12">
+                    <div class="flex flex-column sm:flex-row sm:align-items-center p-4 gap-3 border-top-1 surface-border">
+                        <div class="md:w-10rem relative">
+                            <!-- [src]="product.image || 'https://primefaces.org/cdn/primeng/images/demo/product/bamboo-watch.jpg'" -->
+                            <img class="block xl:block mx-auto border-round w-full"
+                                [src]="'https://primefaces.org/cdn/primeng/images/demo/product/bamboo-watch.jpg'"
+                                [alt]="product.name" />
+                            <p-tag [value]="product.inventoryStatus"
+                                    [severity]="getSeverity(product)"
+                                    class="absolute"
+                                    [style.left.px]="4"
+                                    [style.top.px]="4" />
+                        </div>
+
+                        <!-- Infos -->
+                        <div class="flex flex-column md:flex-row justify-content-between md:align-items-center flex-1 gap-4">
+                            <div class="flex flex-row md:flex-column justify-content-between align-items-start gap-2">
+                            <div>
+                                <span class="font-medium text-secondary text-sm">{{ product.category }}</span>
+                                <div class="text-lg font-medium text-900 mt-2">{{ product.name }}</div>
+                            </div>
+
+                            <div class="surface-100 p-1" style="border-radius:30px">
+                                <div class="surface-0 flex align-items-center gap-2 justify-content-center py-1 px-2"
+                                    style="border-radius:30px; box-shadow:0 1px 2px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06)">
+                                <span class="text-900 font-medium text-sm">{{ product.rating || 0 }}</span>
+                                <i class="pi pi-star-fill text-yellow-500"></i>
+                                </div>
+                            </div>
+                            </div>
+
+                            <!-- Prix + actions -->
+                            <div class="flex flex-column md:align-items-end gap-4">
+                                    <span class="text-xl font-semibold text-900">{{ product.price | currency:'EUR' }}</span>
+
+                                    <div class="flex flex-row-reverse md:flex-row gap-2">
+                                        <p-button icon="pi pi-heart" [outlined]="true"></p-button>
+                                        <p-button icon="pi pi-shopping-cart"
+                                                class="flex-auto md:flex-initial white-space-nowrap"
+                                                label="Acheter"
+                                                [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"></p-button>
+                                    </div>
+
+                                    <!-- Boutons Admin -->
+                                    @if (isAdmin()) {
+                                        <div class="flex gap-2">
+                                            <p-button label="Modifier" severity="secondary" (onClick)="onUpdate(product)"></p-button>
+                                            <p-button label="Supprimer" severity="danger" (onClick)="onDelete(product)"></p-button>
+                                        </div>
+                                    }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </ng-template>
+    </p-dataView>
 
 <p-dialog [(visible)]="isDialogVisible"
     [style]="{ width: '50vw' }"

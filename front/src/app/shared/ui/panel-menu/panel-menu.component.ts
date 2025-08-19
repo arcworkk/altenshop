@@ -25,25 +25,21 @@ import { Router } from "@angular/router";
             label: 'Accueil',
             icon: 'pi pi-home',
             routerLink: ['/home'],
-            command: () => {
-              const el = document.activeElement as HTMLElement | null;
-              if (this.router.isActive('/home', { paths: 'exact', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored'})) {
-                el?.blur();
-              }
-            }
+            command: () => this.blurActive()
         },
         {
             label: 'Produits',
             icon: 'pi pi-barcode',
             routerLink: ['/products/list'],
-            command: () => {
-              const el = document.activeElement as HTMLElement | null;
-              if (this.router.isActive('/products/list', { paths: 'exact', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored'})) {
-                el?.blur();
-              }
-            }
+            command: () => this.blurActive()
         }
     ]
+
+    private blurActive() {
+      //Gestion de l'erreur : Blocked aria-hidden on an element because its descendant retained focus.
+      const el = document.activeElement as HTMLElement | null;
+      el?.blur();
+    }
 
     get isLoggedIn() {
       return this.authService.isLoggedIn();

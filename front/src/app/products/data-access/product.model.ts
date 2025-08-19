@@ -11,6 +11,6 @@ export interface Product {
     shellId: number;
     inventoryStatus: "INSTOCK" | "LOWSTOCK" | "OUTOFSTOCK";
     rating: number;
-    createdAt: number;
-    updatedAt: number;
+    createdAt: string;
+    updatedAt: string;
 }

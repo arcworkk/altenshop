@@ -69,4 +69,13 @@ export class AuthService {
     }
     return false;
   }
+
+  isAdmin(): boolean {
+    const role = this.getRole();
+    if(role === 'Admin')
+    {
+      return true;
+    }
+    return false;
+  }
 }

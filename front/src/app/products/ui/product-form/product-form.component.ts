@@ -34,6 +34,8 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
           [(ngModel)]="editedProduct().price" 
           name="price"
           mode="decimal"
+          [minFractionDigits]="1"
+          [maxFractionDigits]="2"
           required/> 
       </div>
       <div class="form-field">

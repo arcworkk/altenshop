@@ -3,6 +3,7 @@ using Api.Domain.Entities;
 using Api.Domain.Models;
 using Api.Features.Interfaces;
 using Api.Infrastructure.Data;
+using Api.Shared.Dtos;
 using Api.Shared.Extensions;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -27,19 +28,76 @@ public class ProductService : IProductService
     /// <summary>
     /// Récupère une liste paginée de produits, avec option de recherche.
     /// </summary>
-    public async Task<PaginatedResult<ProductModel>> GetPaginatedProduct(int page, int pageSize, string? search)
+    public async Task<PaginatedResult<ProductModel>> GetPaginatedProduct(int page, int pageSize, string? search, string? filter, string? sort)
     {
-        if (page < 1) page = 1;
-        if (pageSize < 1) pageSize = 20;
+        // parse filtre
+        var productFilterDto = string.IsNullOrWhiteSpace(filter)
+            ? null
+            : System.Text.Json.JsonSerializer.Deserialize<ProductFilterDto>(filter);
 
         IQueryable<Product> query = AppDbContext.Products.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(product => product.Name.Contains(search) || product.Description.Contains(search));
+            query = query.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
+
+        if (productFilterDto is not null)
+        {
+            if (!string.IsNullOrWhiteSpace(productFilterDto.Category) && productFilterDto.Category != "All")
+                query = query.Where(p => p.Category == productFilterDto.Category);
+
+            if (productFilterDto.InventoryStatus is { Length: > 0 })
+                query = query.Where(p => productFilterDto.InventoryStatus.Contains(p.InventoryStatus));
+
+            if (productFilterDto.PriceMin.HasValue)
+                query = query.Where(p => p.Price >= productFilterDto.PriceMin.Value);
+
+            if (productFilterDto.PriceMax.HasValue)
+                query = query.Where(p => p.Price <= productFilterDto.PriceMax.Value);
+
+            if (productFilterDto.RatingMin.HasValue)
+                query = query.Where(p => p.Rating >= productFilterDto.RatingMin.Value);
+
+            if (productFilterDto.RatingMax.HasValue)
+                query = query.Where(p => p.Rating <= productFilterDto.RatingMax.Value);
+        }
+
+        var sortField = "id";
+        var sortDir = "asc";
+
+        // parse du tri
+        if (!string.IsNullOrWhiteSpace(sort))
+        {
+            var parts = sort.Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            if (parts.Length > 0) sortField = parts[0].ToLowerInvariant();
+            if (parts.Length > 1) sortDir = parts[1].ToLowerInvariant() == "desc" ? "desc" : "asc";
+        }
+
+        query = (sortField, sortDir) switch
+        {
+            ("price", "asc") => query.OrderBy(p => p.Price),
+            ("price", "desc") => query.OrderByDescending(p => p.Price),
+
+            ("name", "asc") => query.OrderBy(p => p.Name),
+            ("name", "desc") => query.OrderByDescending(p => p.Name),
+
+            ("category", "asc") => query.OrderBy(p => p.Category),
+            ("category", "desc") => query.OrderByDescending(p => p.Category),
+
+            ("rating", "asc") => query.OrderBy(p => p.Rating),
+            ("rating", "desc") => query.OrderByDescending(p => p.Rating),
+
+            ("createdat", "asc") => query.OrderBy(p => p.CreatedAt),
+            ("createdat", "desc") => query.OrderByDescending(p => p.CreatedAt),
+
+            ("updatedat", "asc") => query.OrderBy(p => p.UpdatedAt),
+            ("updatedat", "desc") => query.OrderByDescending(p => p.UpdatedAt),
+
+            ("id", "desc") => query.OrderByDescending(p => p.Id),
+            _ => query.OrderBy(p => p.Id) // défaut
+        };
 
         int total = await query.CountAsync();
         List<Product> products = await query
-            .OrderBy(product => product.Name)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
