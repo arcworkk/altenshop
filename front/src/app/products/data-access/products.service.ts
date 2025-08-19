@@ -69,8 +69,13 @@ function toCreateDto(p: Product): ProductCreateDto {
             tap(p => {
                 this.products.set(p.items);
                 this.totalCount.set(p.total);
-            })
-        );
+            }),
+            catchError(err => {
+            if (err) {
+                this.messageService.add({ severity: 'error', summary: 'Erreur', detail: `Une erreur s'est produite lors de la récupération des produits.` });
+            }
+            throw err;
+        }));
     }
 
     public create(product: Product): Observable<Product> {
@@ -137,7 +142,18 @@ function toCreateDto(p: Product): ProductCreateDto {
                 
                 return res.data
             }),
-            tap(() => this.get(this.page, this.pageSize, this.query).subscribe())
+            tap(() => this.get(this.page, this.pageSize, this.query).subscribe()),
+            catchError(err => {
+                const errs = err?.error?.errors as Record<string, string[]> | undefined;
+                if (errs) {
+                    const details = Object.entries(errs)
+                    .map(([k, v]) => `${k}: ${v.join(', ')}`).join(' | ');
+                    this.messageService.add({ severity: 'error', summary: 'Validation', detail: details, life: 5000 });
+                } else {
+                    this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Création échouée' });
+                }
+                throw err;
+            })
         );
     }
 }
