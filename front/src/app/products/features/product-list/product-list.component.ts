@@ -21,6 +21,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { CommonModule } from "@angular/common";
+import { CartService } from "app/shared/ui/menubar/data-access/cart.service";
 
 const emptyProduct: Product = {
   id: 0,
@@ -62,6 +63,7 @@ export class ProductListComponent implements OnInit {
   constructor(private confirmationService: ConfirmationService, private messageService: MessageService) {}
   private readonly productsService = inject(ProductsService);
   private readonly authService = inject(AuthService);
+  private readonly cartService = inject(CartService);
 
   public rows = 5;
   public isDialogVisible = false;
@@ -174,6 +176,12 @@ export class ProductListComponent implements OnInit {
 
   public isAdmin(): boolean {
     return this.authService.isAdmin();
+  }
+
+  public onAddCart(product: Product) {
+    if(product){
+      this.cartService.add(product.id).subscribe();
+    }
   }
 
   public onCreate() {

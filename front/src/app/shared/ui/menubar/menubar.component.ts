@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from 'app/auth/data-access/auth.service';
 import { MessageService } from 'primeng/api';
@@ -9,6 +9,8 @@ import { SidebarModule } from 'primeng/sidebar';
 import { Button } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { AccordionModule } from 'primeng/accordion';
+import { CartService } from './data-access/cart.service';
+import { Product } from 'app/products/data-access/product.model';
 
 @Component({
   selector: 'app-menubar',
@@ -19,19 +21,23 @@ import { AccordionModule } from 'primeng/accordion';
             SidebarModule, Button, AccordionModule],
 })
 
-export class MenubarComponent { 
+export class MenubarComponent {
   cartVisible = false;
-  cartItems: any[] = [];
   wishlistItems: any[] = [];
   title = "ALTEN SHOP";
 
-  constructor(private router: Router, private messageService: MessageService, private authService: AuthService) {}
+  public readonly cart = this.cartService.cart ?? null;
+  public readonly totalRecords = this.cartService.totalItems;
+  public readonly totalAmount = this.cartService.totalAmount;
+
+  constructor(private cartService: CartService, private authService: AuthService) {}
 
   ngOnInit() {
     this.loadCart();
   }
 
   loadCart() {
+    this.cartService.get().subscribe();
   }
 
   openCart() {
@@ -39,20 +45,32 @@ export class MenubarComponent {
     this.loadCart(); // Recharger le panier à chaque ouverture
   }
 
-  increaseQuantity(productId: any) {
-    
+  increaseQuantity(product: Product, quantity: number) {
+    if(product.id) {
+      quantity++
+      this.cartService.update(product.id, quantity).subscribe();
+      this.loadCart();
+    }
   }
 
-  decreaseQuantity(productId: number) {
-    
+  decreaseQuantity(product: Product, quantity: number) {
+    if(product.id && quantity == 1) {
+      this.cartService.remove(product.id).subscribe();
+      this.loadCart();
+    }
+    else {
+      quantity--
+      this.cartService.update(product.id, quantity).subscribe();
+      this.loadCart();
+    }
+
   }
 
   updateWishlistItem(productId: number) {
     
   }
 
-  // Méthode pour calculer le total du panier
   getCartTotal(): number {
-      return this.cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+      return this.cartService.totalAmount();
   }
 }

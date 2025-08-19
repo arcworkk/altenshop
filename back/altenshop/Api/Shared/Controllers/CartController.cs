@@ -4,6 +4,7 @@ using Api.Features.Interfaces;
 using Api.Shared.Dtos;
 using Api.Shared.Extensions;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -25,12 +26,21 @@ public class CartController : ControllerBase
         Mapper = mapper;
     }
 
-    private int GetConnectedUserId() => int.Parse(User.FindFirstValue("ConnectedUserId")!);
+    private int GetConnectedUserId()
+    {
+        var val = User.FindFirstValue("ConnectedUserId");
+        if (string.IsNullOrWhiteSpace(val))
+            throw new UnauthorizedAccessException("Missing ConnectedUserId claim.");
+        if (!int.TryParse(val, out var id))
+            throw new UnauthorizedAccessException("Invalid ConnectedUserId claim.");
+        return id;
+    }
 
     /// <summary>
     /// Récupère le panier de l'utilisateur connecté (inclut les items et les product). Créer et retourne un nouveau panier si introuvable.
     /// </summary>
     [HttpGet]
+    [Authorize(Policy = "HasConnectedUserId")]
     public async Task<ActionResult<ApiResult<CartDto>>> GetCart()
     {
         CartModel cartModel = await CartService.GetCart(GetConnectedUserId());
@@ -43,6 +53,7 @@ public class CartController : ControllerBase
     /// Crée le panier s'il n'existe pas.
     /// </summary>
     [HttpPost]
+    [Authorize(Policy = "HasConnectedUserId")]
     public async Task<ActionResult<ApiResult<CartDto>>> AddCartItem([FromBody] CartItemAddDto cartItemAddDto)
     {
         CartModel createdCartModel = await CartService.AddCartItem(GetConnectedUserId(), cartItemAddDto.ProductId, cartItemAddDto.Quantity);
@@ -55,6 +66,7 @@ public class CartController : ControllerBase
     /// Retourne null si le panier ou l'item n'existent pas.
     /// </summary>
     [HttpPut("{productId:int}")]
+    [Authorize(Policy = "HasConnectedUserId")]
     public async Task<ActionResult<ApiResult<CartDto>>> UpdateCartItem(int productId, [FromBody] CartItemUpdateDto cartItemUpdateDto)
     {
         CartModel? updatedCartModel = await CartService.UpdateCartItem(GetConnectedUserId(), productId, cartItemUpdateDto.Quantity);
@@ -68,6 +80,7 @@ public class CartController : ControllerBase
     /// Supprime un produit du panier de l'utilisateur connecté.
     /// </summary>
     [HttpDelete("{productId:int}")]
+    [Authorize(Policy = "HasConnectedUserId")]
     public async Task<ActionResult<ApiResult<bool>>> DeleteCartItem(int productId)
     {
         bool deleted = await CartService.DeleteCartItem(GetConnectedUserId(), productId);
@@ -80,6 +93,7 @@ public class CartController : ControllerBase
     /// Supprime le panier de l'utilisateur connecté et tous ses produit.
     /// </summary>
     [HttpDelete]
+    [Authorize(Policy = "HasConnectedUserId")]
     public async Task<ActionResult<ApiResult<bool>>> DeleteCart()
     {
         bool deleted = await CartService.DeleteCart(GetConnectedUserId());

@@ -22,20 +22,25 @@
                   </ng-template>
                   <div>
                     <div class="accordion-items">
-                      @for (item of cartItems; track item.cart_item_id) {
+                      @for (item of cart()?.items; track item.id) {
                         <div class="cart-item">
                           <div class="grid">
-                            <p-button severity="success" icon="pi pi-plus" [text]="true" class="p-button-text col-2" (onClick)="increaseQuantity(item)"></p-button>
-                            <p class="col-1 ml-1">{{ item.quantity }}</p>
-                            <p-button severity="danger" icon="pi pi-trash" [text]="true" class="p-button-text col-2" (onClick)="decreaseQuantity(item.cart_item_id)"></p-button>
+                            <p-button severity="success" icon="pi pi-plus" [text]="true" class="p-button-text col-2" (onClick)="increaseQuantity(item.product, item.quantity)" size="small"></p-button>
+                              <div class="ml-2">
+                                <p>{{ item.quantity }}</p>
+                              </div>
+                            <p-button severity="danger" icon="pi pi-trash" [text]="true" class="p-button-text col-2" (onClick)="decreaseQuantity(item.product, item.quantity)" size="small"></p-button>
                             <p class="col">
-                              {{ item.name }} - {{ item.price | currency:'EUR':'symbol' }}
+                              {{ item.product.name }} - {{ item.product.price | currency:'EUR':'symbol' }}
                             </p>
                           </div>
                         </div>
                       } @empty {
                         <p class="text-500">Votre panier est vide.</p>
                       }
+                    </div>
+                    <div class="mb-3">
+                      Total : {{totalAmount() | currency:'EUR':'symbol'}}
                     </div>
                     <button class="checkout-btn">Passer à la caisse</button>
                   </div>
@@ -73,8 +78,8 @@
         
         <i class="pi pi-shopping-cart cursor-pointer"
             role="button" tabindex="0"
-            (click)="cartVisible = true"
-            (keydown.enter)="cartVisible = true"
+            (click)="openCart()"
+            (keydown.enter)="openCart()"
             aria-label="Ouvrir le panier"
             style="font-size: 2rem">
         </i>

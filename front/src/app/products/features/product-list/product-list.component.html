@@ -1,5 +1,4 @@
 <h1 class="text-center">Liste des produits</h1>
-<p-toast />
 <p-confirmDialog />
 @if(isAdmin()) {
     <p-button label="Créer produit" (onClick)="onCreate()" class="block text-center"/>
@@ -132,6 +131,7 @@
                                         <p-button icon="pi pi-shopping-cart"
                                                 class="flex-auto md:flex-initial white-space-nowrap"
                                                 label="Acheter"
+                                                (onClick)="onAddCart(product)"
                                                 [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"></p-button>
                                     </div>
 
