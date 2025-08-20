@@ -187,4 +187,4 @@ Dans ```product-trial-master/front```
 npm install
 
 # Lancer le projet Angular
-ng serve
+npm start
