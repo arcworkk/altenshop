@@ -59,6 +59,24 @@
     padding: 1rem 0;
   }
   
+  /* conteneur de chaque ligne */
+  :host ::ng-deep .cart-item {
+    padding: .25rem 0 .5rem 0;
+  }
+
+  /* ligne fine, courte et centrée */
+  :host ::ng-deep .cart-item .sep-centered {
+    width: 60%;
+    height: 1px;
+    background: #e5e7eb;
+    margin: .5rem auto 0 auto;
+  }
+
+  /* pas de séparateur après le dernier item */
+  :host ::ng-deep .cart-item:last-child .sep-centered {
+    display: none;
+  }
+  
   .navbar-right p-button {
     padding-left: 20px;
   }

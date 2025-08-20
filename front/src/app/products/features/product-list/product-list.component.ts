@@ -22,6 +22,7 @@ import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { CommonModule } from "@angular/common";
 import { CartService } from "app/shared/ui/menubar/data-access/cart.service";
+import { WishlistService } from "app/shared/ui/menubar/data-access/wishList.service";
 
 const emptyProduct: Product = {
   id: 0,
@@ -64,6 +65,7 @@ export class ProductListComponent implements OnInit {
   private readonly productsService = inject(ProductsService);
   private readonly authService = inject(AuthService);
   private readonly cartService = inject(CartService);
+  private readonly wishListService = inject(WishlistService);
 
   public rows = 5;
   public isDialogVisible = false;
@@ -71,6 +73,7 @@ export class ProductListComponent implements OnInit {
   public readonly editedProduct = signal<Product>(emptyProduct);
 
   public readonly products = this.productsService.products;
+  public readonly wishlist = this.wishListService.wishlist;
   public readonly totalRecords = this.productsService.totalCount;
 
   public readonly search = signal<string>('');
@@ -101,6 +104,12 @@ export class ProductListComponent implements OnInit {
   ];
 
   ngOnInit() {
+    const token = this.authService.getToken();
+    if (!token){
+      this.wishlist.set(null);
+    } else {
+      this.wishListService.get().subscribe();
+    }
     this.productsService.get().subscribe();
     this.reload(1, this.rows);
   }
@@ -166,6 +175,12 @@ export class ProductListComponent implements OnInit {
     this.reload(1, this.rows);
   }
 
+  isInWishlist(product: Product): boolean {
+    // selon comment tu stockes la wishlist (exemple : via WishlistService.signal)
+    const wishlist = this.wishlist();
+    return !!wishlist?.items?.some(it => it.productId === product.id);
+  }
+
   public onSortChange() {
     this.reload(1, this.rows);
   }
@@ -176,6 +191,12 @@ export class ProductListComponent implements OnInit {
 
   public isAdmin(): boolean {
     return this.authService.isAdmin();
+  }
+
+  public onWishList(product: Product) {
+    if(product){
+      this.wishListService.update(product.id).subscribe();
+    }
   }
 
   public onAddCart(product: Product) {

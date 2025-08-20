@@ -24,16 +24,20 @@
                     <div class="accordion-items">
                       @for (item of cart()?.items; track item.id) {
                         <div class="cart-item">
-                          <div class="grid">
-                            <p-button severity="success" icon="pi pi-plus" [text]="true" class="p-button-text col-2" (onClick)="increaseQuantity(item.product, item.quantity)" size="small"></p-button>
-                              <div class="ml-2">
-                                <p>{{ item.quantity }}</p>
-                              </div>
-                            <p-button severity="danger" icon="pi pi-trash" [text]="true" class="p-button-text col-2" (onClick)="decreaseQuantity(item.product, item.quantity)" size="small"></p-button>
-                            <p class="col">
-                              {{ item.product.name }} - {{ item.product.price | currency:'EUR':'symbol' }}
-                            </p>
+                          <div class="grid align-items-center">
+                            <p-button severity="success" icon="pi pi-plus" [text]="true"
+                                      class="col-2" (onClick)="increaseQuantity(item.product, item.quantity)" size="small"></p-button>
+
+                            <div class="ml-2"><p>{{ item.quantity }}</p></div>
+
+                            <p-button severity="danger" icon="pi pi-minus" [text]="true"
+                                      class="col-2" (onClick)="decreaseQuantity(item.product, item.quantity)" size="small"></p-button>
+
+                            <div class="col">
+                              <p>{{ item.product.name }} - {{ item.product.price | currency:'EUR':'symbol' }}</p>
+                            </div>
                           </div>
+                          <div class="sep-centered"></div>
                         </div>
                       } @empty {
                         <p class="text-500">Votre panier est vide.</p>
@@ -57,12 +61,12 @@
                   </ng-template>
                   <div>
                     <div class="accordion-items">
-                      @for (product of wishlistItems; track product.id) {
+                      @for (item of wishlist()?.items; track item.product.id) {
                         <div class="whishlist-item">
                           <div class="grid">
-                            <p-button severity="danger" icon="pi pi-trash" [text]="true" class="p-button-text col-2" (onClick)="updateWishlistItem(product.id)"></p-button>
+                            <p-button severity="danger" icon="pi pi-trash" [text]="true" class="p-button-text col-2" (onClick)="updateWishlistItem(item.product)"></p-button>
                             <p class="col">
-                              {{ product.name }} - {{ product.price | currency:'EUR':'symbol' }}
+                              {{ item.product.name }} - {{ item.product.price | currency:'EUR':'symbol' }}
                             </p>
                           </div>
                         </div>
@@ -78,8 +82,8 @@
         
         <i class="pi pi-shopping-cart cursor-pointer"
             role="button" tabindex="0"
-            (click)="openCart()"
-            (keydown.enter)="openCart()"
+            (click)="openAccordion()"
+            (keydown.enter)="openAccordion()"
             aria-label="Ouvrir le panier"
             style="font-size: 2rem">
         </i>

@@ -127,7 +127,12 @@
                                     <span class="text-xl font-semibold text-900">{{ product.price | currency:'EUR' }}</span>
 
                                     <div class="flex flex-row-reverse md:flex-row gap-2">
-                                        <p-button icon="pi pi-heart" [outlined]="true"></p-button>
+                                        <p-button 
+                                            icon="pi pi-heart" 
+                                            [outlined]="!isInWishlist(product)" 
+                                            [severity]="isInWishlist(product) ? 'warning' : 'warning'"
+                                            (onClick)="onWishList(product)">
+                                        </p-button>
                                         <p-button icon="pi pi-shopping-cart"
                                                 class="flex-auto md:flex-initial white-space-nowrap"
                                                 label="Acheter"

@@ -4,6 +4,7 @@ using Api.Features.Interfaces;
 using Api.Shared.Dtos;
 using Api.Shared.Extensions;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -25,12 +26,21 @@ public class WishlistController : ControllerBase
         Mapper = mapper;
     }
 
-    private int GetConnectedUserId() => int.Parse(User.FindFirstValue("ConnectedUserId")!);
+    private int GetConnectedUserId()
+    {
+        var val = User.FindFirstValue("ConnectedUserId");
+        if (string.IsNullOrWhiteSpace(val))
+            throw new UnauthorizedAccessException("Missing ConnectedUserId claim.");
+        if (!int.TryParse(val, out var id))
+            throw new UnauthorizedAccessException("Invalid ConnectedUserId claim.");
+        return id;
+    }
 
     /// <summary>
     /// Récupère la liste d'envie de l'utilisateur connecté (inclut les items et les product). Créer et retourne une nouvelle liste d'envie si introuvable.
     /// </summary>
     [HttpGet]
+    [Authorize(Policy = "HasConnectedUserId")]
     public async Task<ActionResult<ApiResult<WishlistDto>>> GetWishlist()
     {
         WishlistModel wishlistModel = await WishlistService.GetWishlist(GetConnectedUserId());
@@ -43,6 +53,7 @@ public class WishlistController : ControllerBase
     /// Crée la liste d'envie s'il n'existe pas.
     /// </summary>
     [HttpPost("{productId:int}")]
+    [Authorize(Policy = "HasConnectedUserId")]
     public async Task<ActionResult<ApiResult<WishlistDto>>> AddWishlistItem(int productId)
     {
         WishlistModel createdWishlistModel = await WishlistService.AddWishlistItem(GetConnectedUserId(), productId);
@@ -55,6 +66,7 @@ public class WishlistController : ControllerBase
     /// Retourne null si la liste d'envie ou l'item n'existent pas.
     /// </summary>
     [HttpPut("{productId:int}")]
+    [Authorize(Policy = "HasConnectedUserId")]
     public async Task<ActionResult<ApiResult<WishlistDto>>> UpdateWishlistItem(int productId)
     {
         WishlistModel? updatedWishlistModel = await WishlistService.UpdateWishlistItem(GetConnectedUserId(), productId);
@@ -68,6 +80,7 @@ public class WishlistController : ControllerBase
     /// Supprime la liste d'envie de l'utilisateur connecté et tous ses produit.
     /// </summary>
     [HttpDelete]
+    [Authorize(Policy = "HasConnectedUserId")]
     public async Task<ActionResult<ApiResult<bool>>> DeleteWishlist()
     {
         bool deleted = await WishlistService.DeleteWishlist(GetConnectedUserId());
