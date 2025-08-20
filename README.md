@@ -148,3 +148,43 @@ dotnet ef database update
 # Lancer le projet
 dotnet run
 ```
+
+## Livraison Front-end
+
+Le front-end a été développé avec **Angular** et utilise **PrimeNG** pour la partie UI.  
+Il est connecté à l’API sécurisée (ASP.NET Core) via un système d’authentification par **JWT Bearer Token**.  
+
+### Fonctionnalités principales
+- **Authentification / Déconnexion** : gestion du token, redirection automatique vers l’accueil en cas de `401 Unauthorized`.
+- **Gestion des produits** :
+  - Affichage avec pagination, recherche et filtres (catégorie, statut du stock, prix, tri).
+  - Création, modification et suppression (CRUD complet pour les administrateurs).
+- **Panier** :
+  - Ajout, mise à jour et suppression des produits.
+  - Calcul dynamique du total et des quantités.
+  - Persistance liée à l’utilisateur connecté.
+- **Wishlist** :
+  - Ajout et suppression de produits dans la liste d’envies.
+  - Vérification si un produit est déjà présent (changement d’état du bouton « cœur »).
+- **UI / UX** :
+  - Messages de confirmation et notifications (MessageService).
+  - Confirmation avant suppression.
+  - Sidebar pour gérer panier et wishlist.
+  - Mise en page responsive et épurée.
+
+### Stack technique
+- **Angular 17**
+- **PrimeNG** (DataView, Dialog, Button, Dropdown, MultiSelect, Tag, Toast, etc.)
+- **RxJS / Signals** pour la gestion d’état réactif.
+- **JWT** pour la sécurité et l’appel des endpoints protégés.
+
+### Démarrage Front-end
+
+Dans ```product-trial-master/front```
+
+```bash
+# Installer les dépendances
+npm install
+
+# Lancer le projet Angular
+ng serve
